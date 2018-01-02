@@ -4,7 +4,7 @@ const filog = require('filter-log')
 
 class Sink {
 	constructor(path) {
-		this.path = path
+		this.path = pathTools.resolve(path)
 		this.log = filog('file-sink')
 	}
 	
@@ -13,16 +13,35 @@ class Sink {
 			throw new Error('Path now allowed: ' + path)
 		}
 		let combined = pathTools.join(this.path, path)
+		
+		if(combined.indexOf(this.path) != 0) {
+			this.log.error('Possible attack in reading file: ' + combined)
+			return callback(new Error('Possible attack in reading file: ' + combined))
+		}
+
 		this.log.debug('about to read: ' + combined)
 		fs.readFile(combined, callback)
 	}
 	
-	write(path, callback) {
+	write(path, data) {
 		if(!this.isAllowedPath(path)) {
 			throw new Error('Path now allowed: ' + path)
 		}
 		let newArgs = [...arguments]
-		newArgs[0] = pathTools.join(this.path, newArgs[0])
+		let combined = pathTools.join(this.path, newArgs[0])
+		
+		if(combined.indexOf(this.path) != 0) {
+			this.log.error('Possible attack in writing file: ' + combined)
+			let callback = null
+			newArgs.forEach((item) => {
+				if(typeof item == 'function') {
+					callback = item
+				}
+			})
+			return callback(new Error('Possible attack in writing file: ' + combined))
+		}
+		
+		newArgs[0] = combined
 		this.log.debug('about to write: ' + newArgs[0])
 		fs.writeFile.apply(fs, newArgs)
 	}

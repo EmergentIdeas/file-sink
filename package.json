@@ -1,0 +1,35 @@
+{
+    "name": "file-sink",
+    "version": "1.0.0",
+    "description": "A slim abstraction over the file system to easily resolve relative paths",
+    "main": "file-sink.js",
+    "scripts": {
+        "test": "node_modules/mocha/bin/mocha",
+        "testDebug": "node_modules/mocha/bin/mocha --inspect --debug-brk"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/EmergentIdeas/file-sink.git"
+    },
+    "keywords": [
+        "file",
+        "system",
+        "abstraction",
+        "relative",
+        "path"
+    ],
+    "devDependencies": {
+        "chai": "^4.0.2",
+        "mocha": "^3.4.2",
+        "random-strings": "0.0.1"
+    },
+    "author": "Dan Kolz (Emergent Ideas)",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/EmergentIdeas/file-sink/issues"
+    },
+    "homepage": "https://github.com/EmergentIdeas/file-sink#readme",
+    "dependencies": {
+        "filter-log": "0.0.3"
+    }
+}

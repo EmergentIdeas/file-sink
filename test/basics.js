@@ -37,4 +37,20 @@ describe("basic tests", function() {
 		
 	})
 	
+	it("a sync read", function(done) {
+		let s = new Sink('./test-data')
+		try {
+			let data = s.readSync('data1.txt')
+			if(msg == data.toString()) {
+				done()
+			}
+			else {
+				done(new Error('contents read did not match contents written'))
+			}
+		}
+		catch(error) {
+			return done(error)
+		}
+	})
+	
 })

@@ -13,6 +13,10 @@ tempSink.read('my-file.txt', function(err, data) {
 	console.log(data.toString())
 })
 
+// read /tmp/my-file.txt
+let data = tempSink.readSync('my-file.txt')
+// throws error if path does not exist or some other problem happens
+
 // write to /tmp/my-file.txt
 tempSink.write('my-file.txt', 'Hello, World!', function(err) {
 	// log error if exists

@@ -23,6 +23,21 @@ class Sink {
 		fs.readFile(combined, callback)
 	}
 	
+	readSync(path) {
+		if(!this.isAllowedPath(path)) {
+			throw new Error('Path now allowed: ' + path)
+		}
+		let combined = pathTools.join(this.path, path)
+		
+		if(combined.indexOf(this.path) != 0) {
+			this.log.error('Possible attack in reading file: ' + combined)
+			throw new Error('Possible attack in reading file: ' + combined)
+		}
+
+		this.log.debug('about to read: ' + combined)
+		return fs.readFileSync(combined)
+	}
+	
 	write(path, data) {
 		if(!this.isAllowedPath(path)) {
 			throw new Error('Path now allowed: ' + path)

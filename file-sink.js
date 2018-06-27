@@ -87,7 +87,7 @@ class Sink {
 					return reject(err)
 				}
 				
-				let item = createFileItem(path, stat)
+				let item = this.createFileItem(path, stat)
 				if(item.directory) {
 					item.children = []
 					fs.readdir(path, (direrr, files) => {
@@ -108,7 +108,7 @@ class Sink {
 									return reject(err)
 								}
 								
-								item.children.push(createFileItem(pathTools.join(path, file), stat))
+								item.children.push(this.createFileItem(pathTools.join(path, file), stat))
 								if(item.children.length == size && !rejected) {
 									resolve(item)
 								}
@@ -126,20 +126,23 @@ class Sink {
 		
 		return addCallbackToPromise(p, callback)		
 	}
+	
+	createFileItem(path, stat) {
+		let item = {
+			name: pathTools.basename(path),
+			parent: pathTools.dirname(path),
+			stat: stat,
+			directory: stat.isDirectory(),
+			relPath: pathTools.relative(this.path, path)
+		}
+		return item
+	}
+
 }
 
 module.exports = Sink
 
 
-function createFileItem(path, stat) {
-	let item = {
-		name: pathTools.basename(path),
-		parent: pathTools.dirname(path),
-		stat: stat,
-		directory: stat.isDirectory()
-	}
-	return item
-}
 
 function addCallbackToPromise(promise, callback) {
 	if(callback) {

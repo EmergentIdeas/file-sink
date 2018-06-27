@@ -1,11 +1,11 @@
 {
     "name": "file-sink",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "A slim abstraction over the file system to easily resolve relative paths",
     "main": "file-sink.js",
     "scripts": {
         "test": "node_modules/mocha/bin/mocha",
-        "testDebug": "node_modules/mocha/bin/mocha --inspect --debug-brk"
+        "testDebug": "node_modules/mocha/bin/mocha --inspect --inspect-brk"
     },
     "repository": {
         "type": "git",

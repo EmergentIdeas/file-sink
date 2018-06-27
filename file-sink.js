@@ -2,6 +2,7 @@ const fs = require('fs')
 const pathTools = require('path')
 const filog = require('filter-log')
 
+
 class Sink {
 	constructor(path) {
 		this.path = pathTools.resolve(path)
@@ -67,6 +68,87 @@ class Sink {
 		}
 		return true
 	}
+	
+	/**
+	 * Get the details for a file, including the children if the path points to
+	 * a directory.
+	 */
+	getFullFileInfo(path, callback) {
+		if(!this.isAllowedPath(path)) {
+			throw new Error('Path now allowed: ' + path)
+		}
+		
+		path = pathTools.join(this.path, path)
+
+		let rejected = false
+		let p = new Promise((resolve, reject) => {
+			fs.stat(path, (err, stat) => {
+				if(err) {
+					return reject(err)
+				}
+				
+				let item = createFileItem(path, stat)
+				if(item.directory) {
+					item.children = []
+					fs.readdir(path, (direrr, files) => {
+						let size = files.length
+						
+						if(direrr) {
+							return reject(err)
+						}
+						
+						if(size == 0) {
+							return resolve(item)
+						}
+						
+						for(let file of files) {
+							fs.stat(pathTools.join(path, file), (err, stat) => {
+								if(err) {
+									rejected = true
+									return reject(err)
+								}
+								
+								item.children.push(createFileItem(pathTools.join(path, file), stat))
+								if(item.children.length == size && !rejected) {
+									resolve(item)
+								}
+							})
+						}
+					})
+				}
+				else {
+					return resolve(item)
+				}
+				
+			})
+			
+		})
+		
+		return addCallbackToPromise(p, callback)		
+	}
 }
 
 module.exports = Sink
+
+
+function createFileItem(path, stat) {
+	let item = {
+		name: pathTools.basename(path),
+		parent: pathTools.dirname(path),
+		stat: stat,
+		directory: stat.isDirectory()
+	}
+	return item
+}
+
+function addCallbackToPromise(promise, callback) {
+	if(callback) {
+		promise = promise.then((obj) => {
+			callback(null, obj)
+		}).catch((err) => {
+			callback(err)
+		})
+	}
+	
+	return promise
+}

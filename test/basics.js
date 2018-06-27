@@ -53,4 +53,22 @@ describe("basic tests", function() {
 		}
 	})
 	
+	it("a directory read", function(done) {
+		let s = new Sink('./test-data')
+		try {
+			let promise = s.getFullFileInfo('')
+			promise.then((data) => {
+				if(data.children.length == 2) {
+					done()
+				}
+				else {
+					done(new Error('the directory did not contain the right number of files'))
+				}
+			})
+		}
+		catch(error) {
+			return done(error)
+		}
+	})
+	
 })

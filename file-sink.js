@@ -15,13 +15,25 @@ class Sink {
 		}
 		let combined = pathTools.join(this.path, path)
 		
-		if(combined.indexOf(this.path) != 0) {
-			this.log.error('Possible attack in reading file: ' + combined)
-			return callback(new Error('Possible attack in reading file: ' + combined))
-		}
+		let p = new Promise((resolve, reject) => {
+			if(combined.indexOf(this.path) != 0) {
+				this.log.error('Possible attack in reading file: ' + combined)
+				return reject(new Error('Possible attack in reading file: ' + combined))
+			}
 
-		this.log.debug('about to read: ' + combined)
-		fs.readFile(combined, callback)
+			this.log.debug('about to read: ' + combined)
+			fs.readFile(combined, (err, data) => {
+				if(err) {
+					reject(err)
+				}
+				else {
+					resolve(data)
+				}
+			})
+		})
+		
+		addCallbackToPromise(p, callback)
+		return p
 	}
 	
 	readSync(path) {
@@ -46,20 +58,49 @@ class Sink {
 		let newArgs = [...arguments]
 		let combined = pathTools.join(this.path, newArgs[0])
 		
-		if(combined.indexOf(this.path) != 0) {
-			this.log.error('Possible attack in writing file: ' + combined)
-			let callback = null
-			newArgs.forEach((item) => {
-				if(typeof item == 'function') {
-					callback = item
-				}
-			})
-			return callback(new Error('Possible attack in writing file: ' + combined))
-		}
+
+		let callback = null
+		newArgs.forEach((item) => {
+			if(typeof item == 'function') {
+				callback = item
+			}
+		})
 		
-		newArgs[0] = combined
-		this.log.debug('about to write: ' + newArgs[0])
-		fs.writeFile.apply(fs, newArgs)
+
+		let p = new Promise((resolve, reject) => {
+			let newCallback = (err, data) => {
+				if(err) {
+					reject(err)
+				}
+				else {
+					resolve(data)
+				}
+			}
+			let replace = true
+			for(let i = 0; i < newArgs.length; i++) {
+				let item = newArgs[i]
+				if(typeof item == 'function') {
+					newArgs[i] = newCallback
+					replace = false
+					break
+				}
+			}
+			
+			if(replace) {
+				newArgs.push(newCallback)
+			}
+			
+			if(combined.indexOf(this.path) != 0) {
+				this.log.error('Possible attack in writing file: ' + combined)
+				return reject(new Error('Possible attack in writing file: ' + combined))
+			}
+			
+			newArgs[0] = combined
+			this.log.debug('about to write: ' + newArgs[0])
+			fs.writeFile.apply(fs, newArgs)
+		})
+		
+		return addCallbackToPromise(p, callback)
 	}
 	
 	isAllowedPath(path) {

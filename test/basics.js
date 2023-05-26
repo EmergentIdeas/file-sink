@@ -21,6 +21,102 @@ describe("basic tests", function() {
 		
 	})
 
+	it("test remove", function(done) {
+		let filename = 'data3.txt'
+		let s = new Sink('./test-data')
+		let f = async () => {
+			try {
+
+				await s.write(filename, '')
+				let info = await s.getFullFileInfo(filename)
+				assert.equal(info.stat.size, 0)
+				await s.rm(filename)
+				try {
+					info = await s.getFullFileInfo(filename)
+					done(new Error(info))
+				}
+				catch(e) {
+					// the file does not exist, so that should get an error
+					done()
+				}
+			}
+			catch(err) {
+				done(new Error(err))
+			}
+		}
+		f()	
+	})
+
+
+	it("a positional write", function(done) {
+		let s = new Sink('./test-data')
+		let f = async () => {
+			try {
+
+				await s.write('data2.txt', '')
+				await s.write('data2.txt', 'b', {
+					position: 10
+				})
+				await s.write('data2.txt', 'a', {
+					position: 1
+				})
+				
+				let data = await s.read('data2.txt')
+				assert.equal(data.length, 11, "Expected length to be 11")
+				assert.equal(data.slice(1, 2).toString(), 'a')
+				assert.equal(data.slice(10, 11).toString(), 'b')
+				done()
+			}
+			catch(err) {
+				done(new Error(err))
+			}
+		}
+		f()	
+	})
+
+	it("a positional write of buffers", function(done) {
+		let s = new Sink('./test-data')
+		let f = async () => {
+			try {
+
+				await s.write('data2.txt', '')
+				await s.write('data2.txt', Buffer.alloc(10, 2) , {
+					position: 10
+				})
+				await s.write('data2.txt', Buffer.from([1]), {
+					position: 1
+				})
+				
+				let data = await s.read('data2.txt')
+				assert.equal(data.length, 20, "Expected length to be 20")
+				assert.equal(data[1], 1)
+				for(let i = 10; i < 20; i++) {
+					assert.equal(data[i], 2)
+				}
+				done()
+			}
+			catch(err) {
+				done(new Error(err))
+			}
+		}
+		f()	
+	})
+	it("create hash", function(done) {
+		let filename = 'data2.txt'
+		let s = new Sink('./test-data')
+		let f = async () => {
+			try {
+				let hash = await s.createHash(filename)
+				console.log(hash)
+
+				done()
+			}
+			catch(err) {
+				done(new Error(err))
+			}
+		}
+		f()	
+	})
 	it("a simple write promise", function(done) {
 		let s = new Sink('./test-data')
 		s.write('data1.txt', msg).then(() => {
@@ -146,7 +242,7 @@ describe("basic tests", function() {
 		try {
 			let promise = s.getFullFileInfo('')
 			promise.then((data) => {
-				if(data.children.length == 2) {
+				if(data.children.length == 3) {
 					done()
 				}
 				else {

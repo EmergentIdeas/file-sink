@@ -32,6 +32,18 @@ catch(err) {
 }
 
 
+// read the info for a file like mod time
+let info = await tempSink.getFullFileInfo('my-file.txt')
+console.log(info.stat.mtime)
+
+// find the names of the children of a directory
+
+let dirInfo = await tempSink.getFullFileInfo('.')
+for(let child of dirInfo.children) {
+	console.log((child.directory ? '(d) ': "") + child.name + ' - ' + child.stat.ctime)
+}
+
+
 ```
 
 ## Why?

@@ -1,6 +1,6 @@
 {
     "name": "file-sink",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "A slim abstraction over the file system to easily resolve relative paths",
     "main": "file-sink.js",
     "scripts": {

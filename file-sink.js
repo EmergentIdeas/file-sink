@@ -185,18 +185,51 @@ class Sink {
 	}
 
 	/**
-	 * Removes a file
+	 * Removes a file or directory
 	 * @param {string} path 
 	 * @param {function} [callback]
+	 * @param {object} [options]
+	 * @param {object} [options.recursive] If true will delete a directory and its contents (true by default)
 	 * @returns 
 	 */
-	rm(path, callback) {
+	async rm(path, callback, options) {
+		if (!this.isAllowedPath(path)) {
+			throw new Error('Path now allowed: ' + path)
+		}
+		
+		if(typeof callback == 'object' && !options) {
+			options = callback
+			callback = null
+		}
+		
+		options = Object.assign({
+			recursive: true
+		}, options)
+
+		path = pathTools.join(this.path, path)
+		
+		let fileStat
+		try {
+			fileStat = await fs.promises.stat(path)
+			return addCallbackToPromise(fs.promises.rm(path, options), callback)
+		}
+		catch(e) {
+			return addCallbackToPromise(Promise.resolve(), callback)
+		}
+	}
+
+	/**
+	 * Makes a directory
+	 * @param {string} path 
+	 * @returns a promise which resolves to the fs.promises.mkdir promise resolution
+	 */
+	mkdir(path) {
 		if (!this.isAllowedPath(path)) {
 			throw new Error('Path now allowed: ' + path)
 		}
 
 		path = pathTools.join(this.path, path)
-		return addCallbackToPromise(fs.promises.rm(path), callback)
+		return fs.promises.mkdir(path)
 	}
 
 	isAllowedPath(path) {

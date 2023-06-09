@@ -237,6 +237,53 @@ describe("basic tests", function() {
 		}
 	})
 	
+	it("delete non-existent file", function(done) {
+		let s = new Sink('./test-data')
+		try {
+
+			let promise = s.rm('testfile4')
+			promise.then((data) => {
+				done()
+			})
+		}
+		catch(error) {
+			return done(error)
+		}
+	})
+
+	
+	it("a directory create", function(done) {
+		let s = new Sink('./test-data')
+		try {
+
+			let promise = s.mkdir('testdir')
+			promise.then(async (data) => {
+				let info = await s.getFullFileInfo('testdir')
+				assert.equal('testdir', info.name)
+				done()
+			})
+		}
+		catch(error) {
+			return done(error)
+		}
+	})
+
+	it("a directory delete", function(done) {
+		let s = new Sink('./test-data')
+		try {
+
+			let promise = s.rm('testdir')
+			promise.then((data) => {
+				console.log(data)
+				done()
+				// done(new Error('the directory did not contain the right number of files'))
+			})
+		}
+		catch(error) {
+			return done(error)
+		}
+	})
+
 	it("a directory read", function(done) {
 		let s = new Sink('./test-data')
 		try {
@@ -254,5 +301,6 @@ describe("basic tests", function() {
 			return done(error)
 		}
 	})
+
 	
 })

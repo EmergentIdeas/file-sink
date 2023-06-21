@@ -73,6 +73,27 @@ class Sink {
 	}
 
 	/**
+	 * Creates a file read stream
+	 * 
+	 * @param {string} path The path of the file within the sink
+	 * @returns An fs.ReadStream object
+	 */
+	readStream(path) {
+		if (!this.isAllowedPath(path)) {
+			throw new Error('Path now allowed: ' + path)
+		}
+		let combined = pathTools.join(this.path, path)
+
+		if (combined.indexOf(this.path) != 0) {
+			this.log.error('Possible attack in reading file: ' + combined)
+			throw new Error('Possible attack in reading file: ' + combined)
+		}
+
+		this.log.debug('about to create a read stream: ' + combined)
+		return fs.createReadStream(combined)
+	}
+
+	/**
 	 * Writes data to a file.
 	 * 
 	 * If the offset, length, or position options are used, the node file handle interfaces

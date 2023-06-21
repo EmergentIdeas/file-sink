@@ -236,6 +236,27 @@ describe("basic tests", function() {
 			return done(error)
 		}
 	})
+	it("a stream read", function(done) {
+		let s = new Sink('./test-data')
+		try {
+			let data = ''
+			let stream = s.readStream('data1.txt')
+			stream.on('data', (chunk) => {
+				data += chunk
+			})
+			stream.on('close', () => {
+				if(msg == data.toString()) {
+					done()
+				}
+				else {
+					done(new Error('contents read did not match contents written'))
+				}
+			})
+		}
+		catch(error) {
+			return done(error)
+		}
+	})
 	
 	it("delete non-existent file", function(done) {
 		let s = new Sink('./test-data')

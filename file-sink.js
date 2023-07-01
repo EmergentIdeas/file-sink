@@ -235,7 +235,7 @@ class Sink {
 			return addCallbackToPromise(fs.promises.rm(path, options), callback)
 		}
 		catch(e) {
-			return addCallbackToPromise(Promise.resolve(), callback)
+			return addCallbackToPromise(Promise.reject(), callback)
 		}
 	}
 

@@ -264,6 +264,9 @@ describe("basic tests", function() {
 
 			let promise = s.rm('testfile4')
 			promise.then((data) => {
+				done(new Error('this file test not exist so should not be successful'))
+			})
+			.catch(err => {
 				done()
 			})
 		}

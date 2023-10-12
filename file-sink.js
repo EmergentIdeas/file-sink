@@ -242,15 +242,19 @@ class Sink {
 	/**
 	 * Makes a directory
 	 * @param {string} path 
+	 * @param {object} options Same as the node js promises mkdir options
+	 * @param {boolean} options.recursive create intermediate directories
+	 * @param {boolean} options.mode The premission string from the new directories
+	 * 
 	 * @returns a promise which resolves to the fs.promises.mkdir promise resolution
 	 */
-	mkdir(path) {
+	mkdir(path, options) {
 		if (!this.isAllowedPath(path)) {
 			throw new Error('Path now allowed: ' + path)
 		}
 
 		path = pathTools.join(this.path, path)
-		return fs.promises.mkdir(path)
+		return fs.promises.mkdir(path, options)
 	}
 
 	isAllowedPath(path) {

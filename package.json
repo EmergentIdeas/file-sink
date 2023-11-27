@@ -1,6 +1,6 @@
 {
     "name": "file-sink",
-    "version": "1.0.10",
+    "version": "1.0.11",
     "description": "A slim abstraction over the file system to easily resolve relative paths",
     "main": "file-sink.js",
     "scripts": {
@@ -32,4 +32,9 @@
         "add-callback-to-promise": "^1.0.2",
         "filter-log": "^1.0.3"
     }
+	, "files": [
+		"README.md"
+		, "file-sink.js"
+		, "find-methods.js"
+	]
 }

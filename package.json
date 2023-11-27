@@ -4,7 +4,7 @@
     "description": "A slim abstraction over the file system to easily resolve relative paths",
     "main": "file-sink.js",
     "scripts": {
-        "test": "node_modules/mocha/bin/mocha",
+        "test": "npx mocha",
         "testDebug": "node_modules/mocha/bin/mocha --inspect --inspect-brk"
     },
     "repository": {

@@ -3,6 +3,7 @@ const pathTools = require('path')
 const filog = require('filter-log')
 const addCallbackToPromise = require('add-callback-to-promise')
 const crypto = require('crypto')
+const EventEmitter = require('events')
 
 /**
  * An abstraction over a file system.
@@ -286,11 +287,10 @@ class Sink {
 				if (item.directory) {
 					item.children = []
 					fs.readdir(path, (direrr, files) => {
-						let size = files.length
-
 						if (direrr) {
 							return reject(err)
 						}
+						let size = files.length
 
 						if (size == 0) {
 							return resolve(item)
@@ -349,6 +349,116 @@ class Sink {
 		return item
 	}
 
+	_createTest(pattern) {
+		let test
+		if(pattern) {
+			if(typeof pattern === 'function') {
+				test = pattern
+			}
+			else {
+				if(typeof pattern === 'string') {
+					pattern = new RegExp(pattern)
+				}
+				if(pattern instanceof RegExp) {
+					test = function(value) {
+						return pattern.test(value)
+					}
+				}
+			}
+		}
+		return test
+	}
+
+	find({
+		file = true
+		, directory = true
+		, namePattern
+		, pathPattern
+		} = {}) {
+		let started = 0
+		let done = 0
+		let options = arguments[1]
+		let output = new EventEmitter()
+
+		let nameTest = this._createTest(namePattern)
+		let pathTest = this._createTest(pathPattern)
+		let self = this
+
+		async function match(name, path) {
+			if(nameTest) {
+				let result = nameTest(name)
+				if(result instanceof Promise) {
+					result = await result
+				}
+				if(!result) {
+					return
+				}
+			}
+			if(pathTest) {
+				let result = pathTest(path)
+				if(result instanceof Promise) {
+					result = await result
+				}
+				if(!result) {
+					return
+				}
+			}
+
+			output.emit('data', path)
+		}
+
+
+		function contentsOfPath(path) {
+			self.getFullFileInfo(path).then(cur => {
+				for (let child of cur.children) {
+					let childPath = path + "/" + child.name
+					while (childPath.startsWith('/')) {
+						childPath = childPath.substring(1)
+					}
+					if (child.directory) {
+						if (directory) {
+							match(child.name, childPath)
+						}
+						started++
+						contentsOfPath(childPath, options)
+					}
+					else {
+						if (file) {
+							match(child.name, childPath)
+						}
+					}
+				}
+
+			}).catch(err => {
+				// Happens when we can't read the directory as well as true errors
+			}).finally(() => {
+				done++
+				if (started == done) {
+					output.emit('done')
+				}
+			})
+		}
+		started++
+		contentsOfPath('')
+
+		return output
+	}
+
+	async findPaths(options) {
+		return new Promise((resolve, reject) => {
+			let items = []
+
+			let events = this.find(options)
+
+			events
+			.on('data', path => {
+				items.push(path)
+			})
+			.on('done', () => {
+				resolve(items)
+			})
+		})
+	}
 }
 
 module.exports = Sink

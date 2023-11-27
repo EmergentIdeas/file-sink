@@ -268,6 +268,38 @@ class Sink {
 	/**
 	 * Get the details for a file, including the children if the path points to
 	 * a directory.
+	 * 
+	 * Returned falue looks like:
+	 * 
+	 * ```
+	 * {
+		name: 'testdir',
+		parent: '/mnt/workingdata/node-repo/file-sink/test-data',
+		stat: Stats {
+			dev: 2097,
+			mode: 16893,
+			nlink: 2,
+			uid: 1000,
+			gid: 1000,
+			rdev: 0,
+			blksize: 4096,
+			ino: 85729889,
+			size: 4096,
+			blocks: 8,
+			atimeMs: 1701114609826.992,
+			mtimeMs: 1701114609826.992,
+			ctimeMs: 1701114609826.992,
+			birthtimeMs: 1701114609826.992,
+			atime: 2023-11-27T19:50:09.827Z,
+			mtime: 2023-11-27T19:50:09.827Z,
+			ctime: 2023-11-27T19:50:09.827Z,
+			birthtime: 2023-11-27T19:50:09.827Z
+		},
+		directory: true,
+		relPath: 'testdir',
+		children: []
+		}
+		```
 	 */
 	getFullFileInfo(path, callback) {
 		if (!this.isAllowedPath(path)) {
@@ -349,6 +381,12 @@ class Sink {
 		return item
 	}
 
+	/**
+	 * Returns/creates a test function based on the pattern.
+	 *  
+	 * @param {string | RegExp | function | async function} pattern 
+	 * @returns 
+	 */
 	_createTest(pattern) {
 		let test
 		if(pattern) {
@@ -369,11 +407,29 @@ class Sink {
 		return test
 	}
 
+	/**
+	 * Finds files and directories a bit like the unix `find` command.
+	 * 
+	 * @param {object} options
+	 * @param {string} options.startingPath The relative path within the sink to begin looking.
+	 * @param {boolean} options.file Set to true if paths which represent files should be emitted (true by default)
+	 * @param {boolean} options.directory Set to true if paths which represent directories should be emitted (true by default)
+	 * @param {string | RegExp | function | async function} options.namePattern A test for the name of the file/directory.
+	 * If a function it must return true for the path to be emitted. If an async function, it must resolve to true for the
+	 * path to be emitted. If a regex, the `test` function must return true when passed the name. If a string, it will be
+	 * passed to `new RegExp()` to create a regular expression.
+	 * @param {string | RegExp | function | async function} options.pathPattern A test for the path of the file/directory.
+	 * Works like namePattern except that the relative path value of the item is used instead of just the name.
+	 * @returns An EventEmitter which emits `data` and `done` events.
+	 * The `data` events have string which is a relative path matching
+	 * the criteria.
+	 */
 	find({
 		file = true
 		, directory = true
 		, namePattern
 		, pathPattern
+		, startingPath = ""
 		} = {}) {
 		let started = 0
 		let done = 0
@@ -439,11 +495,18 @@ class Sink {
 			})
 		}
 		started++
-		contentsOfPath('')
+		contentsOfPath(startingPath)
 
 		return output
 	}
 
+	/**
+	 * Finds files and directories a bit like the unix `find` command.
+	 * 
+	 * @param {object} options See options for `find`.
+	 * @returns A promise which resolves to an array of strings of relative paths
+	 * which match the conditions given in the options.
+	 */
 	async findPaths(options) {
 		return new Promise((resolve, reject) => {
 			let items = []

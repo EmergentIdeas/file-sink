@@ -3,7 +3,7 @@ const pathTools = require('path')
 const filog = require('filter-log')
 const addCallbackToPromise = require('add-callback-to-promise')
 const crypto = require('crypto')
-const findMethods = require('./find-methods')
+const findMethods = require('./lib/find-methods')
 const EventEmitter = require('events')
 
 /**

@@ -21,7 +21,7 @@ for writing partial data/files as well. Returns promise.
 - createHash(path) - A promise with the has value of the file data (sha512 by default)
 - findPaths(options) - A bit like `find`, allows searching for files and directories by name
 - find - Like findPaths, but instead of a promise it returns an EventEmitter which emits `data`
-and `done` events. Each `data` event is the path of a match.
+and `done` events. Each `data` event has a file info object. 
 
 ## Use
 

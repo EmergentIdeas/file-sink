@@ -19,8 +19,8 @@
         "path"
     ],
     "devDependencies": {
-        "chai": "^4.0.2",
-        "mocha": "^3.4.2"
+        "chai": "^4.3.10",
+        "mocha": "^10.2.0"
     },
     "author": "Dan Kolz (Emergent Ideas)",
     "license": "ISC",

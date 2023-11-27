@@ -30,6 +30,6 @@
     "homepage": "https://github.com/EmergentIdeas/file-sink#readme",
     "dependencies": {
         "add-callback-to-promise": "^1.0.2",
-        "filter-log": "0.0.3"
+        "filter-log": "^1.0.3"
     }
 }

@@ -1,9 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert'
-import { default as filog } from "filter-log"
 import { default as Sink } from "../file-sink.js"
 
-var log1 = filog('standard')
 let time = new Date().getTime()
 let msg = 'this is a test: ' + time
 

@@ -1,11 +1,11 @@
 {
     "name": "file-sink",
-    "version": "1.0.14",
+    "version": "1.0.15",
     "description": "A slim abstraction over the file system to easily resolve relative paths",
     "main": "file-sink.js",
     "scripts": {
-        "test": "npx mocha",
-        "testDebug": "node_modules/mocha/bin/mocha --inspect --inspect-brk"
+        "test": "node test/all.mjs",
+        "testDebug": "node --inspect-brk test/all.mjs"
     },
     "repository": {
         "type": "git",
@@ -18,8 +18,6 @@
         "relative",
         "path"
     ],
-    "devDependencies": {
-    },
     "author": "Dan Kolz (Emergent Ideas)",
     "license": "ISC",
     "bugs": {

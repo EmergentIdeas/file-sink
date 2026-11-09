@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert'
 import { default as Sink } from "../file-sink.js"
+import pathTools from "node:path"
 
 let time = new Date().getTime()
 let msg = 'this is a test: ' + time
@@ -11,6 +12,20 @@ test("basic tests", async (t) => {
 		let pr = new Promise((resolve, reject) => {
 			let s = new Sink('./test-data')
 			s.write('data1.txt', msg, function (error) {
+				if (error) {
+					return reject(error)
+				}
+				return resolve()
+			})
+
+		})
+		return pr
+	})
+	await t.test('a simple with too much path info', async (t) => {
+		let pr = new Promise((resolve, reject) => {
+			let start = pathTools.resolve('./test-data')
+			let s = new Sink('./test-data')
+			s.read(pathTools.join(start, 'data1.txt'), function (error) {
 				if (error) {
 					return reject(error)
 				}

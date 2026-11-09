@@ -30,6 +30,9 @@ class Sink {
 		if (!this.isAllowedPath(path)) {
 			throw new Error('Path now allowed: ' + path)
 		}
+		if(path.startsWith(this.path)) {
+			path = path.substring(this.path.length + 1)
+		}
 		let combined = pathTools.join(this.path, path)
 
 		let p = new Promise((resolve, reject) => {
